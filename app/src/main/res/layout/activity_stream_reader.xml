@@ -1,0 +1,15 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+    <include layout="@layout/custom_reader_loading"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/reader_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <include layout="@layout/custom_reader_info"/>
+    <include layout="@layout/custom_back_btn"/>
+    <include layout="@layout/custom_seek_bar"/>
+    <include layout="@layout/custom_reader_mask"/>
+</RelativeLayout>
