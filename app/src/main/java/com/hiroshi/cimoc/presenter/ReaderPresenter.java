@@ -1,5 +1,7 @@
 package com.hiroshi.cimoc.presenter;
 
+import android.util.Log;
+
 import com.hiroshi.cimoc.R;
 import com.hiroshi.cimoc.core.manager.SourceManager;
 import com.hiroshi.cimoc.core.source.base.Manga;
@@ -123,9 +125,9 @@ public class ReaderPresenter extends BasePresenter {
         switch (msg.getType()) {
             case EventMessage.PARSE_PIC_SUCCESS:
                 List<String> list = (List<String>) msg.getData();
-//                for(int i = 0;i<list.size();i++){
-//                    Log.e("image url",list.get(i));
-//                }
+                for(int i = 0;i<list.size();i++){
+                    Log.e("image url",list.get(i));
+                }
                 Chapter chapter;
                 if (!mPreloadAdapter.isLoad()) {
                     mReaderActivity.setNextImage(list);
