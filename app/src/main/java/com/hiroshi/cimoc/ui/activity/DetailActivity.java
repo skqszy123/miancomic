@@ -230,6 +230,7 @@ public class DetailActivity extends BaseActivity {
                     Log.e("skip ready", count + 1 + "/"+imageurllist.size());
                 } else {
                     Toast.makeText(DetailActivity.this, "下载完成", Toast.LENGTH_LONG).show();
+                    ayDownloadDialog.dismiss();
                 }
                 return;
             }
