@@ -25,6 +25,7 @@ public class DetailPresenter extends BasePresenter {
     private ComicManager mComicManager;
     private Manga mManga;
     private Comic mComic;
+    private int source;
 
 
     public DetailPresenter(DetailActivity activity, Long id, int source, String cid) {
@@ -32,6 +33,7 @@ public class DetailPresenter extends BasePresenter {
         mComicManager = ComicManager.getInstance();
         mManga = SourceManager.getManga(source);
         mComic = mComicManager.getComic(id, source, cid);
+        this.source = source;
     }
 
     @Override
@@ -76,10 +78,18 @@ public class DetailPresenter extends BasePresenter {
         EventBus.getDefault().post(new EventMessage(EventMessage.UN_FAVORITE_COMIC, id));
     }
 
+    public void download(String cid,String path){
+        SourceManager.getManga(source).browse(cid,path );
+    }
+
     @SuppressWarnings("unchecked")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventMessage msg) {
         switch (msg.getType()) {
+            case EventMessage.PARSE_PIC_SUCCESS:
+                List<String> list = (List<String>) msg.getData();
+                mDetailActivity.download(list);
+                break;
             case EventMessage.LOAD_COMIC_SUCCESS:
                 mDetailActivity.setView(mComic, (List<Chapter>) msg.getData());
                 break;

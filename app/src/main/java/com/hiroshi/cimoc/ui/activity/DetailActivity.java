@@ -2,12 +2,16 @@ package com.hiroshi.cimoc.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.hiroshi.cimoc.R;
 import com.hiroshi.cimoc.model.Chapter;
@@ -16,7 +20,10 @@ import com.hiroshi.cimoc.presenter.BasePresenter;
 import com.hiroshi.cimoc.presenter.DetailPresenter;
 import com.hiroshi.cimoc.ui.adapter.BaseAdapter;
 import com.hiroshi.cimoc.ui.adapter.ChapterAdapter;
+import com.hiroshi.cimoc.utils.ControllerBuilderFactory;
+import com.hiroshi.cimoc.utils.DownLoadManager;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -94,7 +101,8 @@ public class DetailActivity extends BaseActivity {
         mChapterAdapter.setLast(last);
     }
 
-    public void setView(Comic comic, List<Chapter> list) {
+    public void setView(final Comic comic, final List<Chapter> list) {
+        this.comic = comic;
         if (list == null) {
             mProgressBar.setVisibility(View.GONE);
             mCoordinatorLayout.setVisibility(View.VISIBLE);
@@ -111,6 +119,17 @@ public class DetailActivity extends BaseActivity {
                     Intent intent = ReaderActivity.createIntent(DetailActivity.this, mPresenter.getComic(),
                             mChapterAdapter.getDateSet(), position - 1);
                     startActivity(intent);
+                }
+            }
+        });
+        mChapterAdapter.setOnItemLongClickListener(new BaseAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(View view, int position) {
+                if(position!=0){
+                    Log.e("chapter",list.get(position-1).getTitle());
+                    Log.e("comic name:",comic.getTitle());
+                    DetailActivity.this.chapter = list.get(position-1);
+                    mPresenter.download(comic.getCid(),list.get(position-1).getPath());
                 }
             }
         });
@@ -142,6 +161,60 @@ public class DetailActivity extends BaseActivity {
         intent.putExtra(EXTRA_SOURCE, source);
         intent.putExtra(EXTRA_CID, cid);
         return intent;
+    }
+
+    public void download(List<String> list){
+        imageurllist = list;
+        count = 0;
+        DownLoadManager.getInstance().createDir(getExternalFilesDir(null) + "/IMAGE",comic.getTitle(),chapter.getTitle());
+
+        new Task().execute(imageurllist.get(count));
+    }
+
+    private int count=0;
+    private List<String> imageurllist;
+    private Comic comic;
+    private Chapter chapter;
+    /**
+     * 异步线程下载图片
+     *
+     */
+    public class Task extends AsyncTask<String, Integer, Bitmap> {
+        private String name;
+        protected Bitmap doInBackground(String... params) {
+            name = params[0].substring(params[0].lastIndexOf("/"),params[0].length());
+            File file = new File(getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle()+"/"+chapter.getTitle()+"/"+name);
+            if(file.exists()){
+                return null;
+            }
+            Bitmap bitmap = DownLoadManager.getInstance().GetImageInputStream((String) params[0], ControllerBuilderFactory.getReferer(comic.getSource()));
+            return bitmap;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            super.onPostExecute(result);
+            if(result == null){
+                count++;
+                if (count < imageurllist.size()) {
+                    new Task().execute(imageurllist.get(count));
+                    Log.e("skip ready", count + 1 + "/"+imageurllist.size());
+                } else {
+                    Toast.makeText(DetailActivity.this, "下载完成", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+            DownLoadManager.getInstance().SavaImage(result, getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle()+"/"+chapter.getTitle(),name);
+            Log.e("path", getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle()+"/"+chapter.getTitle());
+//            Toast.makeText(MainActivity.this,"下载完成",Toast.LENGTH_LONG);
+            count++;
+            if (count < imageurllist.size()) {
+                new Task().execute(imageurllist.get(count));
+                Log.e("download ready", count + 1 + "/"+imageurllist.size());
+            } else {
+                Toast.makeText(DetailActivity.this, "下载完成", Toast.LENGTH_LONG).show();
+            }
+
+        }
     }
 
 }
