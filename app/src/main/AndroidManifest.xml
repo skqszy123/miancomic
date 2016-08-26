@@ -42,6 +42,27 @@
             android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize"
             android:theme="@style/ReaderTheme"/>
+        <activity
+            android:name=".ui.activity.AYReaderActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/ReaderTheme"/>
+        <activity
+            android:name=".ui.activity.AYDownLoadActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/ReaderTheme"/>
+        <activity
+            android:name=".ui.activity.AYSetCodeActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/ReaderTheme"/>
+        <activity
+            android:name=".ui.activity.AYAboutWebView"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"
+            android:windowSoftInputMode="stateVisible|adjustPan"
+            android:theme="@style/ReaderTheme"/>
 
         <activity
             android:name=".ui.activity.LandscapeStreamReaderActivity"

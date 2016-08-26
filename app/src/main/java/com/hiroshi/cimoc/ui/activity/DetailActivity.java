@@ -2,6 +2,7 @@ package com.hiroshi.cimoc.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.design.widget.CoordinatorLayout;
@@ -23,11 +24,22 @@ import com.hiroshi.cimoc.ui.adapter.ChapterAdapter;
 import com.hiroshi.cimoc.utils.ControllerBuilderFactory;
 import com.hiroshi.cimoc.utils.DownLoadManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by Hiroshi on 2016/7/2.
@@ -41,17 +53,21 @@ public class DetailActivity extends BaseActivity {
 
     private ChapterAdapter mChapterAdapter;
     private DetailPresenter mPresenter;
-
+    private List<Chapter> list;
+    private AYDownloadDialog ayDownloadDialog;
     @OnClick(R.id.detail_star_btn) void onClick() {
-        if (mPresenter.isComicFavorite()) {
-            mPresenter.unfavoriteComic();
-            mStarButton.setImageResource(R.drawable.ic_favorite_border_white_24dp);
-            showSnackbar(R.string.detail_unfavorite);
-        } else {
-            mPresenter.favoriteComic();
-            mStarButton.setImageResource(R.drawable.ic_favorite_white_24dp);
-            showSnackbar(R.string.detail_favorite);
-        }
+//        if (mPresenter.isComicFavorite()) {
+//            mPresenter.unfavoriteComic();
+//            mStarButton.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+//            showSnackbar(R.string.detail_unfavorite);
+//        } else {
+//            mPresenter.favoriteComic();
+//            mStarButton.setImageResource(R.drawable.ic_favorite_white_24dp);
+//            showSnackbar(R.string.detail_favorite);
+//        }
+
+
+
     }
 
     @Override
@@ -109,6 +125,7 @@ public class DetailActivity extends BaseActivity {
             showSnackbar(R.string.common_network_error);
             return;
         }
+        this.list = list;
 
         mChapterAdapter = new ChapterAdapter(this, list, comic.getSource(), comic.getCover(), comic.getTitle(),
                 comic.getAuthor(), comic.getIntro(), comic.getStatus(), comic.getUpdate(), comic.getLast());
@@ -126,10 +143,9 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onItemLongClick(View view, int position) {
                 if(position!=0){
-                    Log.e("chapter",list.get(position-1).getTitle());
-                    Log.e("comic name:",comic.getTitle());
-                    DetailActivity.this.chapter = list.get(position-1);
-                    mPresenter.download(comic.getCid(),list.get(position-1).getPath());
+                    postAsynHttp(loadData(DetailActivity.this),position);
+//                    Intent intent = new Intent(DetailActivity.this,AYReaderActivity.class);
+//                    startActivity(intent);
                 }
             }
         });
@@ -150,7 +166,11 @@ public class DetailActivity extends BaseActivity {
             showSnackbar(R.string.detail_error);
         }
     }
-
+    private String loadData(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("config", MODE_PRIVATE);
+//        Toast.makeText(this, sp.getString("content", "").toString(), 0).show();
+        return sp.getString("code", "").toString();
+    }
     public static final String EXTRA_ID = "a";
     public static final String EXTRA_SOURCE = "b";
     public static final String EXTRA_CID = "c";
@@ -166,7 +186,9 @@ public class DetailActivity extends BaseActivity {
     public void download(List<String> list){
         imageurllist = list;
         count = 0;
-        DownLoadManager.getInstance().createDir(getExternalFilesDir(null) + "/IMAGE",comic.getTitle(),chapter.getTitle());
+        ayDownloadDialog = new AYDownloadDialog(DetailActivity.this);
+        ayDownloadDialog.showDialog();
+        DownLoadManager.getInstance().createDir(getExternalFilesDir(null) + "/IMAGE",comic.getTitle().replace("/",""),chapter.getTitle().replace("/",""));
 
         new Task().execute(imageurllist.get(count));
     }
@@ -181,9 +203,17 @@ public class DetailActivity extends BaseActivity {
      */
     public class Task extends AsyncTask<String, Integer, Bitmap> {
         private String name;
+        private String count_name;
         protected Bitmap doInBackground(String... params) {
-            name = params[0].substring(params[0].lastIndexOf("/"),params[0].length());
-            File file = new File(getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle()+"/"+chapter.getTitle()+"/"+name);
+            name = params[0].substring(params[0].lastIndexOf("/")+1,params[0].length());
+            StringBuffer bf = new StringBuffer();
+            String str_count = String.valueOf(count);
+            for(int i =str_count.length() ;i<4;i++){
+                bf.append("0");
+            }
+            bf.append(str_count);
+            count_name = bf.toString();
+            File file = new File(getExternalFilesDir(null) + "/IMAGE/"+ comic.getTitle().replace("/","")+"/"+chapter.getTitle().replace("/","")+"/"+count_name+"_"+name);
             if(file.exists()){
                 return null;
             }
@@ -203,18 +233,79 @@ public class DetailActivity extends BaseActivity {
                 }
                 return;
             }
-            DownLoadManager.getInstance().SavaImage(result, getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle()+"/"+chapter.getTitle(),name);
-            Log.e("path", getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle()+"/"+chapter.getTitle());
+            DownLoadManager.getInstance().SavaImage(result, getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle().replace("/","")+"/"+chapter.getTitle().replace("/",""),count_name+"_"+name);
+            Log.e("path", getExternalFilesDir(null) + "/IMAGE/"+comic.getTitle().replace("/","")+"/"+chapter.getTitle().replace("/","")+"/"+count_name+"_"+name);
 //            Toast.makeText(MainActivity.this,"下载完成",Toast.LENGTH_LONG);
             count++;
+
+            Log.e("download ready", count + "/"+imageurllist.size());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                ayDownloadDialog.setText(count + " / "+imageurllist.size());
+                }
+            });
+
             if (count < imageurllist.size()) {
                 new Task().execute(imageurllist.get(count));
-                Log.e("download ready", count + 1 + "/"+imageurllist.size());
+
             } else {
                 Toast.makeText(DetailActivity.this, "下载完成", Toast.LENGTH_LONG).show();
+                ayDownloadDialog.dismiss();
             }
 
         }
+    }
+
+    private void postAsynHttp(String checkcode, final int position) {
+        OkHttpClient mOkHttpClient=new OkHttpClient();
+        RequestBody formBody = new FormBody.Builder()
+                .add("checkcode", checkcode)
+                .build();
+        Request request = new Request.Builder()
+                .url("http://121.42.200.39/TAPI/main.php?m=test&service=testFun.AYCHECK")
+                .post(formBody)
+                .build();
+        Call call = mOkHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Toast.makeText(DetailActivity.this,"网络访问失败",Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String str = response.body().string();
+                Log.e("wangshu", str);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject jsonObject = null;
+                        String success = "400";
+                        try {
+                            jsonObject = new JSONObject(str);
+                            success = jsonObject.getString("success");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if(jsonObject == null){
+                            return;
+                        }
+
+                        if("1".equals(success)){
+                            Log.e("chapter",list.get(position-1).getTitle());
+                            Log.e("comic name:",comic.getTitle());
+                            DetailActivity.this.chapter = list.get(position-1);
+                            mPresenter.download(comic.getCid(),list.get(position-1).getPath());
+                            Toast.makeText(DetailActivity.this,"密钥验证成功",Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(DetailActivity.this,"密钥验证失败",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+
+        });
     }
 
 }

@@ -15,6 +15,15 @@
             android:id="@+id/drawer_source"
             android:title="@string/drawer_source"/>
         <item
+            android:id="@+id/drawer_download"
+            android:title="@string/drawer_download"/>
+        <item
+            android:id="@+id/drawer_set_checkcode"
+            android:title="@string/drawer_set_checkcode"/>
+        <item
+            android:id="@+id/drawer_about_down"
+            android:title="@string/drawer_about_down"/>
+        <item
             android:title="@string/drawer_system">
             <menu>
                 <item

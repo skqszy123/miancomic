@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Author: sunkeqiang  Description:-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+    <EditText
+        android:id="@+id/et_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:textSize="20dp"
+        android:layout_gravity="center_horizontal"
+        android:hint="请输入密钥"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="保存密钥"
+        android:textSize="20dp"
+        />
+
+</LinearLayout>

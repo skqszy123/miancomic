@@ -113,6 +113,7 @@ public class MainPresenter extends BasePresenter {
             mMainActivity.closeDrawer();
             return false;
         }
+
         mCheckedItem = menuItem.getItemId();
         mMainActivity.showProgressBar();
         mFragmentManager.beginTransaction().hide(mCurrentFragment).commit();

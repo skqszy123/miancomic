@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Author: sunkeqiang  Description:-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="50dp"
+    android:paddingRight="50dp"
+    android:background="#eeeeee">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="正在下载"
+        android:paddingTop="20dp"
+        android:textSize="20dp"
+        />
+
+    <ProgressBar
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        />
+    <TextView
+        android:id="@+id/tv_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:paddingBottom="20dp"
+        android:layout_gravity="center_horizontal"
+        />
+</LinearLayout>

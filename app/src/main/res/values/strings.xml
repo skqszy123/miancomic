@@ -4,6 +4,9 @@
     <string name="drawer_main">Cimoc</string>
     <string name="drawer_comic">我的漫画</string>
     <string name="drawer_history">历史浏览</string>
+    <string name="drawer_download">我的下载</string>
+    <string name="drawer_set_checkcode">设置密钥</string>
+    <string name="drawer_about_down">关于下载</string>
     <string name="drawer_system">系统选项</string>
     <string name="drawer_source">图源管理</string>
     <string name="drawer_settings">设置</string>

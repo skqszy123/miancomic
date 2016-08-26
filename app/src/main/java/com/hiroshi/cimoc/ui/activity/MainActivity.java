@@ -74,6 +74,17 @@ public class MainActivity extends BaseActivity {
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
+                if(item.getItemId() == R.id.drawer_download){
+                    Intent intent = new Intent(MainActivity.this,AYDownLoadActivity.class);
+                    startActivity(intent);
+                    return true;
+                }else if(item.getItemId() == R.id.drawer_set_checkcode){
+                    Intent intent = new Intent(MainActivity.this,AYSetCodeActivity.class);
+                    startActivity(intent);
+                }else if(item.getItemId() == R.id.drawer_about_down){
+                    Intent intent = new Intent(MainActivity.this,AYAboutWebView.class);
+                    startActivity(intent);
+                }
                 return mPresenter.switchItem(item);
             }
         });
