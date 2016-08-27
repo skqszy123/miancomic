@@ -80,6 +80,20 @@ public abstract class Manga {
         });
     }
 
+    public void browse_d(String cid, String path) {
+        enqueueClient(buildBrowseRequest(cid, path), new OnResponseSuccessHandler() {
+            @Override
+            public void onSuccess(String html) {
+                List<String> list = parseBrowse(html);
+                if (list == null || list.isEmpty()) {
+                    EventBus.getDefault().post(new EventMessage(EventMessage.PARSE_PIC_FAIL, null));
+                } else {
+                    EventBus.getDefault().post(new EventMessage(EventMessage.PARSE_PIC_SUCCESS_DETAIL, list));
+                }
+            }
+        });
+    }
+
     public String check(String cid) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(500, TimeUnit.MILLISECONDS)

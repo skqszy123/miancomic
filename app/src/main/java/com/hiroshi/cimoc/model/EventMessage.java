@@ -25,10 +25,11 @@ public class EventMessage {
     public static final int DELETE_HISTORY = 13;
     public static final int RESTORE_FAVORITE = 14;
     public static final int COMIC_DELETE = 15;
+    public static final int PARSE_PIC_SUCCESS_DETAIL = 16;
 
     @IntDef({SEARCH_SUCCESS, SEARCH_FAIL, LOAD_COMIC_SUCCESS, LOAD_COMIC_FAIL, PARSE_PIC_SUCCESS, PARSE_PIC_FAIL,
             NETWORK_ERROR, FAVORITE_COMIC, UN_FAVORITE_COMIC, HISTORY_COMIC, COMIC_PAGE_CHANGE, COMIC_LAST_CHANGE,
-            DELETE_HISTORY, RESTORE_FAVORITE, COMIC_DELETE})
+            DELETE_HISTORY, RESTORE_FAVORITE, COMIC_DELETE,PARSE_PIC_SUCCESS_DETAIL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EventType {}
 

@@ -2,7 +2,11 @@ package com.hiroshi.cimoc.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.hiroshi.cimoc.R;
 
@@ -36,6 +41,8 @@ public class AYDownLoadActivity extends Activity {
     ArrayList<String> pathlist_chapter;
     private ListView lv_download;
     private int page = 1;
+    private String page2path = "";
+    private AYDownloadDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +62,8 @@ public class AYDownLoadActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(page == 1){
-                    pathlist_chapter = getFileListOrderByName(pathlist.get(position));
+                    page2path = pathlist.get(position);
+                    pathlist_chapter = getFileListOrderByName(page2path);
                     lv_download.setAdapter(new ChapterDapter());
                     page = 2;
                 }else {
@@ -63,6 +71,24 @@ public class AYDownLoadActivity extends Activity {
                     intent.putStringArrayListExtra("pathlist", getFileListOrderByName(pathlist_chapter.get(position)));
                     startActivity(intent);
                 }
+            }
+        });
+
+        lv_download.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                dialog = new AYDownloadDialog(AYDownLoadActivity.this);
+                dialog.setTitle("正在删除");
+                dialog.showDialog();
+
+                if(page == 1){
+                    new DeleteTask().execute(pathlist.get(position));
+                }else if(page == 2){
+                    new DeleteTask().execute(pathlist_chapter.get(position));
+                }
+
+                return true;
             }
         });
 
@@ -182,4 +208,106 @@ public class AYDownLoadActivity extends Activity {
         }
       return pathlist;
     }
+
+    /**
+     * 递归删除文件和文件夹
+     *
+     * @param file
+     *            要删除的根目录
+     */
+    public void DeleteFile(File file) {
+
+        if (file.exists() == false) {
+            mHandler.sendEmptyMessage(0);
+            return;
+        } else {
+
+            if (file.isFile()) {
+                Message msg = new Message();
+                msg.what = 4;
+                msg.obj = file.getPath();
+                mHandler.sendMessage(msg);
+                Log.e("delete path",file.getPath());
+                file.delete();
+                return;
+            }
+            if (file.isDirectory()) {
+                File[] childFile = file.listFiles();
+                if (childFile == null || childFile.length == 0) {
+                    file.delete();
+                    mHandler.sendEmptyMessage(1);
+                    if(page == 1){
+                        mHandler.sendEmptyMessage(2);
+                    }else if(page == 2){
+                        mHandler.sendEmptyMessage(3);
+                    }
+                    return;
+                }
+                for (File f : childFile) {
+                    DeleteFile(f);
+                }
+                file.delete();
+                mHandler.sendEmptyMessage(1);
+                if(page == 1){
+                    mHandler.sendEmptyMessage(2);
+                }else if(page == 2){
+                    mHandler.sendEmptyMessage(3);
+                }
+            }
+        }
+    }
+    Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    Toast.makeText(getApplicationContext(), "文件或文件夹不存在", Toast.LENGTH_LONG).show();
+
+                    break;
+                case 1:
+                    Toast.makeText(getApplicationContext(), "删除成功！", Toast.LENGTH_LONG).show();
+                    break;
+
+                case 2:
+                    pathlist = getFileListOrderByName(getExternalFilesDir(null) + "/IMAGE");
+                    lv_download.setAdapter(new downLoadAdapter());
+
+                    break;
+
+                case 3:
+                    pathlist_chapter = getFileListOrderByName(page2path);
+                    lv_download.setAdapter(new ChapterDapter());
+
+                    break;
+                case 4:
+                    if(dialog!=null)
+                        dialog.setText((String)msg.obj);
+                    break;
+                case 5:
+
+                    break;
+                default:
+                    break;
+            }
+        };
+    };
+
+
+    class DeleteTask extends AsyncTask<String,Integer,Integer>{
+
+        @Override
+        protected Integer doInBackground(String... params) {
+            DeleteFile(new File(params[0]));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            if(dialog!=null) {
+                dialog.dismiss();
+                dialog = null;
+            }
+        }
+    }
+
 }

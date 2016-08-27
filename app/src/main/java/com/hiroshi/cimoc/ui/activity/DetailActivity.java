@@ -56,15 +56,15 @@ public class DetailActivity extends BaseActivity {
     private List<Chapter> list;
     private AYDownloadDialog ayDownloadDialog;
     @OnClick(R.id.detail_star_btn) void onClick() {
-//        if (mPresenter.isComicFavorite()) {
-//            mPresenter.unfavoriteComic();
-//            mStarButton.setImageResource(R.drawable.ic_favorite_border_white_24dp);
-//            showSnackbar(R.string.detail_unfavorite);
-//        } else {
-//            mPresenter.favoriteComic();
-//            mStarButton.setImageResource(R.drawable.ic_favorite_white_24dp);
-//            showSnackbar(R.string.detail_favorite);
-//        }
+        if (mPresenter.isComicFavorite()) {
+            mPresenter.unfavoriteComic();
+            mStarButton.setImageResource(R.drawable.ic_favorite_border_white_24dp);
+            showSnackbar(R.string.detail_unfavorite);
+        } else {
+            mPresenter.favoriteComic();
+            mStarButton.setImageResource(R.drawable.ic_favorite_white_24dp);
+            showSnackbar(R.string.detail_favorite);
+        }
 
 
 

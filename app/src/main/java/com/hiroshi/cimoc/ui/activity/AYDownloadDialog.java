@@ -24,7 +24,7 @@ public class AYDownloadDialog {
     private Dialog dialog;
 
     private TextView mTv_dialog_cancel;
-    private TextView mTv_dialog_sure;
+    private TextView tv_title;
     private TextView tv_text;
     private String content;
     public AYDownloadDialog(Context context) {
@@ -49,8 +49,11 @@ public class AYDownloadDialog {
         dialog.show();
     }
 
+
+
     private void findview(){
         tv_text = (TextView) view.findViewById(R.id.tv_down);
+        tv_title = (TextView) view.findViewById(R.id.tv_title);
 
 
     }
@@ -61,6 +64,9 @@ public class AYDownloadDialog {
 
     public void setText(String text){
         tv_text.setText(text);
+    }
+    public void setTitle(String title){
+        tv_title.setText(title);
     }
 
     public void dismiss(){

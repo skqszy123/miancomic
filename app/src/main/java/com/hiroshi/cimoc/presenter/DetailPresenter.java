@@ -79,14 +79,14 @@ public class DetailPresenter extends BasePresenter {
     }
 
     public void download(String cid,String path){
-        SourceManager.getManga(source).browse(cid,path );
+        SourceManager.getManga(source).browse_d(cid,path );
     }
 
     @SuppressWarnings("unchecked")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(EventMessage msg) {
         switch (msg.getType()) {
-            case EventMessage.PARSE_PIC_SUCCESS:
+            case EventMessage.PARSE_PIC_SUCCESS_DETAIL:
                 List<String> list = (List<String>) msg.getData();
                 mDetailActivity.download(list);
                 break;
