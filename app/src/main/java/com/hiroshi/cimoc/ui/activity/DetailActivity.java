@@ -164,7 +164,6 @@ public class DetailActivity extends BaseActivity {
         mStarButton.setVisibility(View.VISIBLE);
         if (list.isEmpty()) {
             showSnackbar(R.string.detail_error);
-
         }
     }
     private String loadData(Context context) {
